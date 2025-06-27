@@ -36,6 +36,7 @@ update_sys_path(
 # Imports needed for the language server goes below this.
 # **********************************************************
 # pylint: disable=wrong-import-position,import-error
+
 import lsp_jsonrpc as jsonrpc
 import lsp_utils as utils
 import lsprotocol.types as lsp
@@ -67,15 +68,15 @@ LSP_SERVER = server.LanguageServer(
 
 # TODO: Update TOOL_MODULE with the module name for your tool.
 # e.g, TOOL_MODULE = "pylint"
-TOOL_MODULE = "<pytool-module>"
+TOOL_MODULE = "mpremote"
 
 # TODO: Update TOOL_DISPLAY with a display name for your tool.
 # e.g, TOOL_DISPLAY = "Pylint"
-TOOL_DISPLAY = "<pytool-display-name>"
+TOOL_DISPLAY = "MPRemote"
 
 # TODO: Update TOOL_ARGS with default argument you have to pass to your tool in
 # all scenarios.
-TOOL_ARGS = []  # default arguments always passed to your tool.
+TOOL_ARGS = ["run"]  # default arguments always passed to your tool.
 
 
 # TODO: If your tool is a linter then update this section.
@@ -118,7 +119,7 @@ def _linting_helper(document: workspace.Document) -> list[lsp.Diagnostic]:
     # support linting over stdin to be effective. Read, and update
     # _run_tool_on_document and _run_tool functions as needed for your project.
     result = _run_tool_on_document(document)
-    return _parse_output_using_regex(result.stdout) if result.stdout else []
+    return _parse_output_using_regex(result.stdout) if result.stdout else []  # type: ignore
 
 
 # TODO: If your linter outputs in a known format like JSON, then parse
@@ -158,8 +159,8 @@ def _parse_output_using_regex(content: str) -> list[lsp.Diagnostic]:
                     start=position,
                     end=position,
                 ),
-                message=data.get("message"),
-                severity=_get_severity(data["code"], data["type"]),
+                message=data.get("message"),  # type: ignore
+                severity=_get_severity(data["code"], data["type"]),  # type: ignore
                 code=data["code"],
                 source=TOOL_MODULE,
             )
@@ -183,70 +184,72 @@ def _get_severity(*_codes: list[str]) -> lsp.DiagnosticSeverity:
 # Linting features end here
 # **********************************************************
 
-# TODO: If your tool is a formatter then update this section.
-# Delete "Formatting features" section if your tool is NOT a
-# formatter.
-# **********************************************************
-# Formatting features start here
-# **********************************************************
-#  Sample implementations:
-#  Black: https://github.com/microsoft/vscode-black-formatter/blob/main/bundled/tool
 
 
-@LSP_SERVER.feature(lsp.TEXT_DOCUMENT_FORMATTING)
-def formatting(params: lsp.DocumentFormattingParams) -> list[lsp.TextEdit] | None:
-    """LSP handler for textDocument/formatting request."""
-    # If your tool is a formatter you can use this handler to provide
-    # formatting support on save. You have to return an array of lsp.TextEdit
-    # objects, to provide your formatted results.
-
-    document = LSP_SERVER.workspace.get_document(params.text_document.uri)
-    edits = _formatting_helper(document)
-    if edits:
-        return edits
-
-    # NOTE: If you provide [] array, VS Code will clear the file of all contents.
-    # To indicate no changes to file return None.
-    return None
+# # TODO: If your tool is a formatter then update this section.
+# # Delete "Formatting features" section if your tool is NOT a
+# # formatter.
+# # **********************************************************
+# # Formatting features start here
+# # **********************************************************
+# #  Sample implementations:
+# #  Black: https://github.com/microsoft/vscode-black-formatter/blob/main/bundled/tool
 
 
-def _formatting_helper(document: workspace.Document) -> list[lsp.TextEdit] | None:
-    # TODO: For formatting on save support the formatter you use must support
-    # formatting via stdin.
-    # Read, and update_run_tool_on_document and _run_tool functions as needed
-    # for your formatter.
-    result = _run_tool_on_document(document, use_stdin=True)
-    if result.stdout:
-        new_source = _match_line_endings(document, result.stdout)
-        return [
-            lsp.TextEdit(
-                range=lsp.Range(
-                    start=lsp.Position(line=0, character=0),
-                    end=lsp.Position(line=len(document.lines), character=0),
-                ),
-                new_text=new_source,
-            )
-        ]
-    return None
+# @LSP_SERVER.feature(lsp.TEXT_DOCUMENT_FORMATTING)
+# def formatting(params: lsp.DocumentFormattingParams) -> list[lsp.TextEdit] | None:
+#     """LSP handler for textDocument/formatting request."""
+#     # If your tool is a formatter you can use this handler to provide
+#     # formatting support on save. You have to return an array of lsp.TextEdit
+#     # objects, to provide your formatted results.
+
+#     document = LSP_SERVER.workspace.get_document(params.text_document.uri)
+#     edits = _formatting_helper(document)
+#     if edits:
+#         return edits
+
+#     # NOTE: If you provide [] array, VS Code will clear the file of all contents.
+#     # To indicate no changes to file return None.
+#     return None
 
 
-def _get_line_endings(lines: list[str]) -> str:
-    """Returns line endings used in the text."""
-    try:
-        if lines[0][-2:] == "\r\n":
-            return "\r\n"
-        return "\n"
-    except Exception:  # pylint: disable=broad-except
-        return None
+# def _formatting_helper(document: workspace.Document) -> list[lsp.TextEdit] | None:
+#     # TODO: For formatting on save support the formatter you use must support
+#     # formatting via stdin.
+#     # Read, and update_run_tool_on_document and _run_tool functions as needed
+#     # for your formatter.
+#     result = _run_tool_on_document(document, use_stdin=True)
+#     if result.stdout:  # type: ignore
+#         new_source = _match_line_endings(document, result.stdout)  # type: ignore
+#         return [
+#             lsp.TextEdit(
+#                 range=lsp.Range(
+#                     start=lsp.Position(line=0, character=0),
+#                     end=lsp.Position(line=len(document.lines), character=0),
+#                 ),
+#                 new_text=new_source,
+#             )
+#         ]
+#     return None
 
 
-def _match_line_endings(document: workspace.Document, text: str) -> str:
-    """Ensures that the edited text line endings matches the document line endings."""
-    expected = _get_line_endings(document.source.splitlines(keepends=True))
-    actual = _get_line_endings(text.splitlines(keepends=True))
-    if actual == expected or actual is None or expected is None:
-        return text
-    return text.replace(actual, expected)
+# def _get_line_endings(lines: list[str]) -> str:
+#     """Returns line endings used in the text."""
+#     try:
+#         if lines[0][-2:] == "\r\n":
+#             return "\r\n"
+#         return "\n"
+#     except Exception:  # pylint: disable=broad-except
+#         return ""
+
+
+# def _match_line_endings(document: workspace.Document, text: str) -> str:
+#     """Ensures that the edited text line endings matches the document line endings."""
+#     expected = _get_line_endings(document.source.splitlines(keepends=True))
+#     actual = _get_line_endings(text.splitlines(keepends=True))
+#     if actual == expected or actual is None or expected is None:
+#         return text
+#     return text.replace(actual, expected)
 
 
 # **********************************************************
@@ -265,9 +268,9 @@ def initialize(params: lsp.InitializeParams) -> None:
     paths = "\r\n   ".join(sys.path)
     log_to_output(f"sys.path used to run Server:\r\n   {paths}")
 
-    GLOBAL_SETTINGS.update(**params.initialization_options.get("globalSettings", {}))
+    GLOBAL_SETTINGS.update(**params.initialization_options.get("globalSettings", {}))   # type: ignore
 
-    settings = params.initialization_options["settings"]
+    settings = params.initialization_options["settings"]   # type: ignore
     _update_workspace_settings(settings)
     log_to_output(
         f"Settings used to run Server:\r\n{json.dumps(settings, indent=4, ensure_ascii=False)}\r\n"
@@ -280,7 +283,7 @@ def initialize(params: lsp.InitializeParams) -> None:
 @LSP_SERVER.feature(lsp.EXIT)
 def on_exit(_params: Optional[Any] = None) -> None:
     """Handle clean up on exit."""
-    jsonrpc.shutdown_json_rpc()
+    jsonrpc.shutdown_json_rpc() 
 
 
 @LSP_SERVER.feature(lsp.SHUTDOWN)
@@ -527,24 +530,24 @@ def _run_tool(extra_args: Sequence[str]) -> utils.RunResult:
         result = utils.run_path(argv=argv, use_stdin=True, cwd=cwd)
         if result.stderr:
             log_to_output(result.stderr)
-    elif use_rpc:
-        # This mode is used if the interpreter running this server is different from
-        # the interpreter used for running this server.
-        log_to_output(" ".join(settings["interpreter"] + ["-m"] + argv))
-        log_to_output(f"CWD Linter: {cwd}")
-        result = jsonrpc.run_over_json_rpc(
-            workspace=code_workspace,
-            interpreter=settings["interpreter"],
-            module=TOOL_MODULE,
-            argv=argv,
-            use_stdin=True,
-            cwd=cwd,
-        )
-        if result.exception:
-            log_error(result.exception)
-            result = utils.RunResult(result.stdout, result.stderr)
-        elif result.stderr:
-            log_to_output(result.stderr)
+    # elif use_rpc:
+    #     # This mode is used if the interpreter running this server is different from
+    #     # the interpreter used for running this server.
+    #     log_to_output(" ".join(settings["interpreter"] + ["-m"] + argv))
+    #     log_to_output(f"CWD Linter: {cwd}")
+    #     result = jsonrpc.run_over_json_rpc(
+    #         workspace=code_workspace,
+    #         interpreter=settings["interpreter"],
+    #         module=TOOL_MODULE,
+    #         argv=argv,
+    #         use_stdin=True,
+    #         cwd=cwd,
+    #     )
+    #     if result.exception:
+    #         log_error(result.exception)
+    #         result = utils.RunResult(result.stdout, result.stderr)
+    #     elif result.stderr:
+    #         log_to_output(result.stderr)
     else:
         # In this mode the tool is run as a module in the same process as the language server.
         log_to_output(" ".join([sys.executable, "-m"] + argv))
