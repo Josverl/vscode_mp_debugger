@@ -1,10 +1,10 @@
-// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Jos Verlinde. All rights reserved.
 // Licensed under the MIT License.
 
 /* eslint-disable @typescript-eslint/naming-convention */
+import { PythonExtension, ResolvedEnvironment } from '@vscode/python-extension';
 import { commands, Disposable, Event, EventEmitter, Uri } from 'vscode';
 import { traceError, traceLog } from './log/logging';
-import { PythonExtension, ResolvedEnvironment } from '@vscode/python-extension';
 
 export interface IInterpreterDetails {
     path?: string[];

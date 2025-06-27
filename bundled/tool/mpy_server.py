@@ -1,4 +1,4 @@
-# Copyright (c) Microsoft Corporation. All rights reserved.
+# Copyright (c) Jos Verlinde. All rights reserved.
 # Licensed under the MIT License.
 """Implementation of tool support over LSP."""
 from __future__ import annotations

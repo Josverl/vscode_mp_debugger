@@ -2,7 +2,7 @@
     "name": "micropython-debugger",
     "displayName": "MicroPython debugger",
     "description": "Linting support for python files using `micropython_debugger`.",
-    "version": "2022.0.0-dev",
+    "version": "2025.0.1-dev",
     "preview": true,
     "serverInfo": {
         "name": "MicroPython debugger",
@@ -58,7 +58,8 @@
         "lint": "eslint src --ext ts",
         "format-check": "prettier --check 'src/**/*.ts' 'build/**/*.yml' '.github/**/*.yml'",
         "test": "node ./out/test/runTest.js",
-        "vsce-package": "vsce package -o micropython_debugger.vsix"
+        "vsce-package": "vsce package -o micropython_debugger.vsix",
+        "vsce-tree": "vsce ls --tree"
     },
     "contributes": {
         "configuration": {

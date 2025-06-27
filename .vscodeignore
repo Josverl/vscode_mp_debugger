@@ -20,6 +20,10 @@ bundled/libs/*.dist-info/**
 noxfile.py
 .pytest_cache/**
 .pylintrc
-**/requirements.txt
-**/requirements.in
+**/requirements*.txt
+**/requirements*.in
 **/tool/_debug_server.py
+
+bootstrap.ipynb
+scratch 
+justfile
